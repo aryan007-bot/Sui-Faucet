@@ -3,11 +3,16 @@
 # dependencies
 /node_modules
 
+<<<<<<< HEAD
 # next.js build output
+=======
+# next.js
+>>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
 /.next/
 /out/
 
 # production
+<<<<<<< HEAD
 /build/
 /dist/
 
@@ -25,12 +30,25 @@ pnpm-debug.log*
 # environment variables
 .env
 .env.*  # optional, in case of .env.local, .env.development, etc.
+=======
+/build
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files
+.env*
+>>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
 
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
+<<<<<<< HEAD
 next-env.d.ts
 
 # IDE settings (optional but recommended)
@@ -44,3 +62,6 @@ coverage/
 # logs (optional)
 logs/
 *.log
+=======
+next-env.d.ts
+>>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94

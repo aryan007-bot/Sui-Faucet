@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 "use client"; 
 
 import type React from "react";
@@ -55,11 +56,40 @@ export default function FaucetPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+=======
+"use client"
+
+import type React from "react"
+
+import { useState } from "react"
+import { motion } from "framer-motion"
+import { Navigation } from "@/components/navigation"
+import { AnimatedBackground } from "@/components/animated-background"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useToast } from "@/hooks/use-toast"
+import { Loader2, Triangle, Copy, Wallet, ArrowDown, CheckCircle, AlertCircle, Droplets, Zap } from "lucide-react"
+
+export default function FaucetPage() {
+  const [address, setAddress] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [isVerifying, setIsVerifying] = useState(false)
+  const [lastRequest, setLastRequest] = useState<string | null>(null)
+  const [network, setNetwork] = useState("testnet")
+  const { toast } = useToast()
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+>>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
     if (!address.trim()) {
       toast({
         title: "Error",
         description: "Please enter a valid Sui address",
         variant: "destructive",
+<<<<<<< HEAD
       });
       return;
     }
@@ -70,6 +100,18 @@ export default function FaucetPage() {
     setTimeout(async () => {
       setIsVerifying(false);
       setIsLoading(true);
+=======
+      })
+      return
+    }
+
+    setIsVerifying(true)
+
+    // Simulate verification delay
+    setTimeout(async () => {
+      setIsVerifying(false)
+      setIsLoading(true)
+>>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
 
       try {
         const response = await fetch("/api/faucet", {
@@ -78,6 +120,7 @@ export default function FaucetPage() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ address }),
+<<<<<<< HEAD
         });
 
         const data = await response.json();
@@ -88,18 +131,35 @@ export default function FaucetPage() {
             title: "Success!",
             description: `Sent ${data.amount} SUI to your address`,
           });
+=======
+        })
+
+        const data = await response.json()
+
+        if (response.ok) {
+          setLastRequest(data.txHash)
+          toast({
+            title: "Success!",
+            description: `Sent ${data.amount} SUI to your address`,
+          })
+>>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
         } else {
           toast({
             title: "Error",
             description: data.error || "Failed to send tokens",
             variant: "destructive",
+<<<<<<< HEAD
           });
+=======
+          })
+>>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
         }
       } catch (error) {
         toast({
           title: "Error",
           description: "Network error. Please try again.",
           variant: "destructive",
+<<<<<<< HEAD
         });
       } finally {
         setIsLoading(false);
@@ -115,6 +175,22 @@ export default function FaucetPage() {
       description: "Address copied to clipboard",
     });
   };
+=======
+        })
+      } finally {
+        setIsLoading(false)
+      }
+    }, 2000)
+  }
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+    toast({
+      title: "Copied!",
+      description: "Address copied to clipboard",
+    })
+  }
+>>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
 
   return (
     <div className="min-h-screen bg-black text-white overflow-hidden">
@@ -146,8 +222,12 @@ export default function FaucetPage() {
               </h1>
             </div>
             <p className="text-base sm:text-lg lg:text-xl text-gray-300 max-w-2xl mx-auto px-4 sm:px-0">
+<<<<<<< HEAD
               Get SUI testnet tokens instantly with our professional-grade
               faucet infrastructure
+=======
+              Get SUI testnet tokens instantly with our professional-grade faucet infrastructure
+>>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
             </p>
           </motion.div>
 
@@ -165,9 +245,13 @@ export default function FaucetPage() {
                     <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center">
                       <Droplets className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
+<<<<<<< HEAD
                     <CardTitle className="text-lg sm:text-xl lg:text-2xl text-white">
                       Request Tokens
                     </CardTitle>
+=======
+                    <CardTitle className="text-lg sm:text-xl lg:text-2xl text-white">Request Tokens</CardTitle>
+>>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
                   </div>
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
                     <Select value={network} onValueChange={setNetwork}>
@@ -179,6 +263,7 @@ export default function FaucetPage() {
                         <SelectItem value="devnet">Devnet</SelectItem>
                       </SelectContent>
                     </Select>
+<<<<<<< HEAD
                     <Button onClick={() => isConnected ? disconnect() : connect("Slush")} className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0 text-sm sm:text-base">
                       <Wallet className="w-4 h-4 mr-2" />
                       {isConnected ? "Disconnect Wallet" : "Connect Wallet"}
@@ -196,6 +281,20 @@ export default function FaucetPage() {
                     <label className="block text-sm font-medium text-gray-300 mb-2 sm:mb-3">
                       Your Wallet Address
                     </label>
+=======
+                    <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0 text-sm sm:text-base">
+                      <Wallet className="w-4 h-4 mr-2" />
+                      Connect Wallet
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+
+              <CardContent className="p-4 sm:p-6 lg:p-8">
+                <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2 sm:mb-3">Your Wallet Address</label>
+>>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
                     <Input
                       type="text"
                       placeholder="0x... (Enter your Sui wallet address)"
@@ -215,9 +314,13 @@ export default function FaucetPage() {
                     >
                       <div className="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-4 text-center sm:text-left">
                         <div className="w-6 h-6 sm:w-8 sm:h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+<<<<<<< HEAD
                         <span className="text-gray-300 text-base sm:text-lg">
                           Verifying...
                         </span>
+=======
+                        <span className="text-gray-300 text-base sm:text-lg">Verifying...</span>
+>>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
                         <div className="text-xs sm:text-sm text-gray-400">
                           <div className="flex items-center justify-center sm:justify-start space-x-2">
                             <span className="w-5 h-5 sm:w-6 sm:h-6 bg-orange-500 rounded-md flex items-center justify-center text-white text-xs sm:text-sm font-bold">
@@ -225,9 +328,13 @@ export default function FaucetPage() {
                             </span>
                             <span>CLOUDFLARE</span>
                           </div>
+<<<<<<< HEAD
                           <div className="text-xs text-gray-500 mt-1">
                             Privacy • Terms
                           </div>
+=======
+                          <div className="text-xs text-gray-500 mt-1">Privacy • Terms</div>
+>>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
                         </div>
                       </div>
                     </motion.div>
@@ -260,6 +367,7 @@ export default function FaucetPage() {
                   >
                     <div className="flex items-center space-x-3 text-green-400 mb-3 sm:mb-4">
                       <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6" />
+<<<<<<< HEAD
                       <span className="font-semibold text-base sm:text-lg">
                         Transaction Successful!
                       </span>
@@ -271,6 +379,13 @@ export default function FaucetPage() {
                       <code className="text-xs sm:text-sm text-gray-300 flex-1 font-mono break-all">
                         {lastRequest}
                       </code>
+=======
+                      <span className="font-semibold text-base sm:text-lg">Transaction Successful!</span>
+                    </div>
+                    <p className="text-xs sm:text-sm text-green-300 mb-2 sm:mb-3">Transaction Hash:</p>
+                    <div className="flex items-center space-x-2 sm:space-x-3 bg-gray-800/50 p-3 sm:p-4 rounded-lg sm:rounded-xl border border-gray-600">
+                      <code className="text-xs sm:text-sm text-gray-300 flex-1 font-mono break-all">{lastRequest}</code>
+>>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
                       <Button
                         size="sm"
                         variant="ghost"
@@ -300,8 +415,12 @@ export default function FaucetPage() {
                   Unused Testnet SUI?
                 </CardTitle>
                 <CardDescription className="text-gray-400 text-sm sm:text-base">
+<<<<<<< HEAD
                   Return your unused tokens to help other developers in the
                   community!
+=======
+                  Return your unused tokens to help other developers in the community!
+>>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -318,9 +437,13 @@ export default function FaucetPage() {
                         size="sm"
                         variant="ghost"
                         onClick={() =>
+<<<<<<< HEAD
                           copyToClipboard(
                             "0x7a9d19d4c210663926eb549da59a54e25777fef63161bfccda08277b58b4212e"
                           )
+=======
+                          copyToClipboard("0x7a9d19d4c210663926eb549da59a54e25777fef63161bfccda08277b58b4212e")
+>>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
                         }
                         className="h-8 w-8 sm:h-10 sm:w-10 p-0 hover:bg-gray-700 flex-shrink-0"
                       >
@@ -344,9 +467,13 @@ export default function FaucetPage() {
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center space-x-3 mb-3 sm:mb-4">
                   <CheckCircle className="w-6 h-6 sm:w-7 sm:h-7 text-blue-400" />
+<<<<<<< HEAD
                   <h3 className="font-semibold text-blue-300 text-base sm:text-lg">
                     Rate Limits
                   </h3>
+=======
+                  <h3 className="font-semibold text-blue-300 text-base sm:text-lg">Rate Limits</h3>
+>>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
                 </div>
                 <ul className="text-xs sm:text-sm text-blue-200 space-y-1 sm:space-y-2">
                   <li>• 1 request per hour per address</li>
@@ -361,9 +488,13 @@ export default function FaucetPage() {
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center space-x-3 mb-3 sm:mb-4">
                   <AlertCircle className="w-6 h-6 sm:w-7 sm:h-7 text-purple-400" />
+<<<<<<< HEAD
                   <h3 className="font-semibold text-purple-300 text-base sm:text-lg">
                     Important
                   </h3>
+=======
+                  <h3 className="font-semibold text-purple-300 text-base sm:text-lg">Important</h3>
+>>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
                 </div>
                 <ul className="text-xs sm:text-sm text-purple-200 space-y-1 sm:space-y-2">
                   <li>• Only for testnet development</li>
@@ -377,5 +508,10 @@ export default function FaucetPage() {
         </div>
       </main>
     </div>
+<<<<<<< HEAD
   );
 } 
+=======
+  )
+}
+>>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94

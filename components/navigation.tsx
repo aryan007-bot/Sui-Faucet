@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 "use client";
 
 import { useWalletKit } from "@mysten/wallet-kit";
@@ -22,12 +23,25 @@ export function Navigation() {
       setTimeout(() => setCopied(false), 1500);
     }
   };
+=======
+"use client"
+
+import { useState } from "react"
+import Link from "next/link"
+import { motion } from "framer-motion"
+import { Button } from "@/components/ui/button"
+import { Menu, X, Wallet } from "lucide-react"
+
+export function Navigation() {
+  const [isOpen, setIsOpen] = useState(false)
+>>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
 
   const navItems = [
     { href: "/", label: "Getting started" },
     { href: "/faucet", label: "Faucet" },
     { href: "/docs", label: "Documentation" },
     { href: "/admin", label: "Admin" },
+<<<<<<< HEAD
   ];
 
   const ConnectWalletButton = () => (
@@ -78,6 +92,9 @@ export function Navigation() {
       </div>
     </motion.div>
   );
+=======
+  ]
+>>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
 
   return (
     <motion.nav
@@ -89,8 +106,14 @@ export function Navigation() {
       <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-xl sm:rounded-2xl shadow-2xl">
         <div className="px-4 sm:px-6 lg:px-8 xl:px-12 py-3 sm:py-4">
           <div className="flex justify-between items-center">
+<<<<<<< HEAD
             {/* Left Nav */}
             <div className="flex items-center">
+=======
+            {/* Left side - Navigation Items */}
+            <div className="flex items-center">
+              {/* Desktop Navigation */}
+>>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
               <div className="hidden lg:flex items-center space-x-8 xl:space-x-12 2xl:space-x-16">
                 {navItems.map((item) => (
                   <Link
@@ -103,6 +126,7 @@ export function Navigation() {
                   </Link>
                 ))}
               </div>
+<<<<<<< HEAD
               <div className="lg:hidden text-white font-semibold text-sm sm:text-base">
                 Test Stream
               </div>
@@ -115,6 +139,30 @@ export function Navigation() {
               </div>
 
               {/* Mobile Toggle */}
+=======
+
+              {/* Mobile/Tablet Brand */}
+              <div className="lg:hidden">
+                <span className="text-white font-semibold text-sm sm:text-base">Test Stream</span>
+              </div>
+            </div>
+
+            {/* Right side - Wallet Button & Mobile Menu */}
+            <div className="flex items-center space-x-3 sm:space-x-4 lg:space-x-6">
+              {/* Desktop Wallet Button */}
+              <Button className="hidden sm:flex bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm px-4 sm:px-5 lg:px-6 xl:px-8 py-2 lg:py-3 text-xs sm:text-sm lg:text-base font-medium transition-all duration-300 rounded-lg sm:rounded-xl">
+                <Wallet className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 mr-2 lg:mr-3" />
+                <span className="hidden sm:inline">Connect Wallet</span>
+                <span className="sm:hidden">Wallet</span>
+              </Button>
+
+              {/* Mobile Wallet Button */}
+              <Button className="sm:hidden bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm px-2 py-1.5 text-xs font-medium transition-all duration-300 rounded-lg">
+                <Wallet className="w-3 h-3" />
+              </Button>
+
+              {/* Mobile menu button */}
+>>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
               <div className="lg:hidden">
                 <Button
                   variant="ghost"
@@ -122,13 +170,21 @@ export function Navigation() {
                   onClick={() => setIsOpen(!isOpen)}
                   className="hover:bg-white/10 p-1.5 sm:p-2"
                 >
+<<<<<<< HEAD
                   {isOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+=======
+                  {isOpen ? <X className="w-4 h-4 sm:w-5 sm:h-5" /> : <Menu className="w-4 h-4 sm:w-5 sm:h-5" />}
+>>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
                 </Button>
               </div>
             </div>
           </div>
 
+<<<<<<< HEAD
           {/* Mobile Nav */}
+=======
+          {/* Mobile Navigation */}
+>>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
           {isOpen && (
             <motion.div
               initial={{ opacity: 0, y: -20 }}
@@ -148,13 +204,24 @@ export function Navigation() {
                   </Link>
                 ))}
               </div>
+<<<<<<< HEAD
               <div className="w-full text-center">
                 {isConnected ? <DisconnectWalletButton /> : <ConnectWalletButton />}
               </div>
+=======
+              <Button className="w-full bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm rounded-lg py-2 sm:py-3 text-xs sm:text-sm">
+                <Wallet className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+                Connect Wallet
+              </Button>
+>>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
             </motion.div>
           )}
         </div>
       </div>
     </motion.nav>
+<<<<<<< HEAD
   );
+=======
+  )
+>>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
 }

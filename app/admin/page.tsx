@@ -8,7 +8,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Activity, Users, Droplets, AlertTriangle, TrendingUp, Clock, Shield, Settings } from "lucide-react"
+<<<<<<< HEAD
 import { useEffect } from "react"
+=======
+>>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
 
 interface AdminStats {
   totalRequests: number
