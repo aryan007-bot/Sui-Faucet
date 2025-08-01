@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 "use client";
 
 import { useWalletKit } from "@mysten/wallet-kit";
@@ -23,33 +22,19 @@ export function Navigation() {
       setTimeout(() => setCopied(false), 1500);
     }
   };
-=======
-"use client"
-
-import { useState } from "react"
-import Link from "next/link"
-import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Menu, X, Wallet } from "lucide-react"
-
-export function Navigation() {
-  const [isOpen, setIsOpen] = useState(false)
->>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
 
   const navItems = [
     { href: "/", label: "Getting started" },
     { href: "/faucet", label: "Faucet" },
     { href: "/docs", label: "Documentation" },
     { href: "/admin", label: "Admin" },
-<<<<<<< HEAD
   ];
 
   const ConnectWalletButton = () => (
     <Button
-      onClick={() => connect("Slush") // or "Sui Wallet", depending on your intended wallet
-      }
+      onClick={() => connect("Slush")}
       disabled={isConnecting}
-      className={`text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-purple-600 hover:to-pink-500 transition-all duration-300 px-4 py-2 rounded-lg font-medium shadow-lg border border-white/10 ${
+      className={`text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-purple-600 hover:to-pink-500 transition-all duration-300 px-4 py-2 rounded-full font-medium shadow-lg border border-white/10 ${
         isConnecting ? "animate-pulse" : "hover:scale-105 sui-glow"
       }`}
     >
@@ -73,12 +58,12 @@ export function Navigation() {
       <div className="relative group">
         <Button
           onClick={disconnect}
-          className="text-white bg-gradient-to-r from-red-500 to-pink-600 hover:from-pink-600 hover:to-red-500 transition-all duration-300 px-4 py-2 rounded-lg font-medium shadow-lg border border-white/10 flex items-center space-x-2"
+          className="text-white bg-gradient-to-r from-red-500 to-pink-600 hover:from-pink-600 hover:to-red-500 transition-all duration-300 px-4 py-2 rounded-full font-medium shadow-lg border border-white/10 flex items-center space-x-2"
         >
           <span>{shortAddress}</span>
           <span
             onClick={(e) => {
-              e.stopPropagation(); // prevent disconnect
+              e.stopPropagation();
               handleCopy();
             }}
             className="hover:text-white cursor-pointer"
@@ -86,15 +71,12 @@ export function Navigation() {
             {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
           </span>
         </Button>
-        <span className="absolute -bottom-8 left-0 w-max opacity-0 group-hover:opacity-100 transition text-xs text-white bg-black px-2 py-1 rounded shadow">
+        <span className="absolute -bottom-8 left-0 w-max opacity-0 group-hover:opacity-100 transition text-xs text-white bg-black px-2 py-1 rounded-full shadow">
           Click to disconnect | Copy address
         </span>
       </div>
     </motion.div>
   );
-=======
-  ]
->>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
 
   return (
     <motion.nav
@@ -103,17 +85,11 @@ export function Navigation() {
       transition={{ duration: 0.8, ease: "easeOut" }}
       className="fixed top-2 sm:top-4 lg:top-6 left-4 sm:left-6 lg:left-12 z-50 w-[95%] sm:w-[90%] lg:w-[85%] xl:w-[80%] 2xl:w-[75%] px-2 sm:px-4"
     >
-      <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-xl sm:rounded-2xl shadow-2xl">
+      <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl">
         <div className="px-4 sm:px-6 lg:px-8 xl:px-12 py-3 sm:py-4">
           <div className="flex justify-between items-center">
-<<<<<<< HEAD
-            {/* Left Nav */}
+            {/* Left side nav */}
             <div className="flex items-center">
-=======
-            {/* Left side - Navigation Items */}
-            <div className="flex items-center">
-              {/* Desktop Navigation */}
->>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
               <div className="hidden lg:flex items-center space-x-8 xl:space-x-12 2xl:space-x-16">
                 {navItems.map((item) => (
                   <Link
@@ -122,69 +98,36 @@ export function Navigation() {
                     className="text-gray-300 hover:text-white transition-all duration-300 text-sm xl:text-base font-medium relative group"
                   >
                     {item.label}
-                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-600 group-hover:w-full transition-all duration-300"></span>
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-600 group-hover:w-full transition-all duration-300 rounded-full"></span>
                   </Link>
                 ))}
               </div>
-<<<<<<< HEAD
               <div className="lg:hidden text-white font-semibold text-sm sm:text-base">
                 Test Stream
               </div>
             </div>
 
-            {/* Right Nav */}
+            {/* Right side - Wallet & Mobile Menu */}
             <div className="flex items-center space-x-3 sm:space-x-4 lg:space-x-6">
               <div className="hidden sm:flex">
                 {isConnected ? <DisconnectWalletButton /> : <ConnectWalletButton />}
               </div>
 
-              {/* Mobile Toggle */}
-=======
-
-              {/* Mobile/Tablet Brand */}
-              <div className="lg:hidden">
-                <span className="text-white font-semibold text-sm sm:text-base">Test Stream</span>
-              </div>
-            </div>
-
-            {/* Right side - Wallet Button & Mobile Menu */}
-            <div className="flex items-center space-x-3 sm:space-x-4 lg:space-x-6">
-              {/* Desktop Wallet Button */}
-              <Button className="hidden sm:flex bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm px-4 sm:px-5 lg:px-6 xl:px-8 py-2 lg:py-3 text-xs sm:text-sm lg:text-base font-medium transition-all duration-300 rounded-lg sm:rounded-xl">
-                <Wallet className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 mr-2 lg:mr-3" />
-                <span className="hidden sm:inline">Connect Wallet</span>
-                <span className="sm:hidden">Wallet</span>
-              </Button>
-
-              {/* Mobile Wallet Button */}
-              <Button className="sm:hidden bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm px-2 py-1.5 text-xs font-medium transition-all duration-300 rounded-lg">
-                <Wallet className="w-3 h-3" />
-              </Button>
-
-              {/* Mobile menu button */}
->>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
+              {/* Mobile menu toggle */}
               <div className="lg:hidden">
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setIsOpen(!isOpen)}
-                  className="hover:bg-white/10 p-1.5 sm:p-2"
+                  className="hover:bg-white/10 p-1.5 sm:p-2 rounded-full"
                 >
-<<<<<<< HEAD
-                  {isOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
-=======
                   {isOpen ? <X className="w-4 h-4 sm:w-5 sm:h-5" /> : <Menu className="w-4 h-4 sm:w-5 sm:h-5" />}
->>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
                 </Button>
               </div>
             </div>
           </div>
 
-<<<<<<< HEAD
-          {/* Mobile Nav */}
-=======
           {/* Mobile Navigation */}
->>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
           {isOpen && (
             <motion.div
               initial={{ opacity: 0, y: -20 }}
@@ -197,31 +140,22 @@ export function Navigation() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="block py-2 sm:py-3 px-3 sm:px-4 text-gray-300 hover:text-white transition-colors text-xs sm:text-sm font-medium bg-white/5 hover:bg-white/10 rounded-lg text-center"
+                    className="block py-2 sm:py-3 px-3 sm:px-4 text-gray-300 hover:text-white transition-colors text-xs sm:text-sm font-medium bg-white/5 hover:bg-white/10 rounded-full text-center"
                     onClick={() => setIsOpen(false)}
                   >
                     {item.label}
                   </Link>
                 ))}
               </div>
-<<<<<<< HEAD
               <div className="w-full text-center">
                 {isConnected ? <DisconnectWalletButton /> : <ConnectWalletButton />}
               </div>
-=======
-              <Button className="w-full bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm rounded-lg py-2 sm:py-3 text-xs sm:text-sm">
-                <Wallet className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-                Connect Wallet
-              </Button>
->>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
             </motion.div>
           )}
         </div>
       </div>
     </motion.nav>
-<<<<<<< HEAD
   );
-=======
-  )
->>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
 }
+
+export default Navigation;

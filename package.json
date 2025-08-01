@@ -11,12 +11,9 @@
   "dependencies": {
     "@emotion/is-prop-valid": "latest",
     "@hookform/resolvers": "^3.9.1",
-<<<<<<< HEAD
     "@mysten/sui": "^1.37.1",
     "@mysten/sui.js": "^0.54.1",
     "@mysten/wallet-kit": "^0.8.6",
-=======
->>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
     "@radix-ui/react-accordion": "1.2.2",
     "@radix-ui/react-alert-dialog": "1.1.4",
     "@radix-ui/react-aspect-ratio": "1.1.1",
@@ -44,21 +41,15 @@
     "@radix-ui/react-toggle": "1.1.1",
     "@radix-ui/react-toggle-group": "1.1.1",
     "@radix-ui/react-tooltip": "1.1.6",
-<<<<<<< HEAD
-    "@upstash/redis": "^1.35.2",
-=======
     "@react-three/drei": "latest",
     "@react-three/fiber": "latest",
->>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
+    "@upstash/redis": "^1.35.2",
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.0.4",
     "date-fns": "4.1.0",
-<<<<<<< HEAD
     "dotenv": "^17.2.1",
-=======
->>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
     "embla-carousel-react": "8.5.1",
     "expo": "latest",
     "expo-asset": "latest",
@@ -70,35 +61,23 @@
     "lucide-react": "^0.454.0",
     "next": "15.2.4",
     "next-themes": "^0.4.4",
-<<<<<<< HEAD
-    "react": "^19.1.1",
-    "react-day-picker": "9.8.0",
-    "react-dom": "^19.1.1",
-=======
     "react": "^18.3.1",
     "react-day-picker": "9.8.0",
     "react-dom": "^18.3.1",
->>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
     "react-hook-form": "^7.54.1",
     "react-native": "latest",
     "react-resizable-panels": "^2.1.7",
-    "recharts": "2.15.0",
+    "recharts": "^2.15.0",
     "sonner": "^1.7.1",
+    "swr": "^2.3.4",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "three": "latest",
-<<<<<<< HEAD
-    "zod": "^3.24.1"
-  },
-  "devDependencies": {
-    "@types/node": "^22.17.0",
-=======
     "vaul": "^0.9.6",
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@types/node": "^22",
->>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
+    "@types/node": "^22.17.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "postcss": "^8.5",

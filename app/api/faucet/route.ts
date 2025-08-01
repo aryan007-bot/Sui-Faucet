@@ -1,97 +1,169 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { headers } from "next/headers"
+import fs from "fs";
+import path from "path";
+import { NextRequest, NextResponse } from "next/server";
+import { headers } from "next/headers";
+import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
+import { Transaction } from "@mysten/sui/transactions";
+import { getFullnodeUrl, SuiClient } from "@mysten/sui/client";
 
-// In-memory storage for rate limiting (use Redis in production)
-const requestLog = new Map<string, { count: number; lastRequest: number }>()
-const RATE_LIMIT_WINDOW = 60 * 60 * 1000 // 1 hour
-const MAX_REQUESTS_PER_HOUR = 1
-const FAUCET_AMOUNT = 1000000000 // 1 SUI in MIST
+// === CONFIG ===
+const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour
+const MAX_REQUESTS_PER_HOUR = 1;
+const FAUCET_AMOUNT = 1_000_000_000; // 1 SUI in MIST
+const LOG_FILE = path.join(process.cwd(), "faucet-logs.json");
 
-function isValidSuiAddress(address: string): boolean {
-  return /^0x[a-fA-F0-9]{64}$/.test(address)
+// === Memory Stores (use Redis/DB in production) ===
+export const requestLog = new Map<string, { count: number; lastRequest: number }>();
+export const bannedIPs = new Set<string>();
+export const bannedWallets = new Set<string>();
+
+// === Helper: Logs ===
+function loadLogs() {
+  if (fs.existsSync(LOG_FILE)) {
+    try {
+      return JSON.parse(fs.readFileSync(LOG_FILE, "utf8"));
+    } catch {
+      return [];
+    }
+  }
+  return [];
 }
 
+function saveLog(entry: any) {
+  const logs = loadLogs();
+  logs.unshift(entry); // add newest at top
+  fs.writeFileSync(LOG_FILE, JSON.stringify(logs.slice(0, 200), null, 2)); // keep 200 latest
+}
+
+// === Helper: Rate Limiting ===
 function getRateLimitKey(ip: string, address: string): string {
-  return `${ip}:${address}`
+  return `${ip}:${address}`;
 }
 
-function checkRateLimit(key: string): { allowed: boolean; resetTime?: number } {
-  const now = Date.now()
-  const record = requestLog.get(key)
+function checkRateLimit(key: string) {
+  const now = Date.now();
+  const record = requestLog.get(key);
 
   if (!record) {
-    requestLog.set(key, { count: 1, lastRequest: now })
-    return { allowed: true }
+    requestLog.set(key, { count: 1, lastRequest: now });
+    return { allowed: true };
   }
 
   if (now - record.lastRequest > RATE_LIMIT_WINDOW) {
-    requestLog.set(key, { count: 1, lastRequest: now })
-    return { allowed: true }
+    requestLog.set(key, { count: 1, lastRequest: now });
+    return { allowed: true };
   }
 
   if (record.count >= MAX_REQUESTS_PER_HOUR) {
-    const resetTime = record.lastRequest + RATE_LIMIT_WINDOW
-    return { allowed: false, resetTime }
+    const resetTime = record.lastRequest + RATE_LIMIT_WINDOW;
+    return { allowed: false, resetTime };
   }
 
-  record.count++
-  record.lastRequest = now
-  return { allowed: true }
+  record.count++;
+  record.lastRequest = now;
+  return { allowed: true };
 }
 
+// === Helper: Validate Address ===
+function isValidSuiAddress(address: string) {
+  return /^0x[a-fA-F0-9]{64}$/.test(address);
+}
+
+// === Sui Client & Keypair ===
+const client = new SuiClient({ url: getFullnodeUrl("testnet") });
+
+if (!process.env.SUI_PRIVATE_KEY) {
+  console.error("❌ Missing SUI_PRIVATE_KEY in environment");
+}
+const keypair = Ed25519Keypair.fromSecretKey(
+  Uint8Array.from(Buffer.from(process.env.SUI_PRIVATE_KEY!.replace(/^0x/, ""), "hex"))
+);
+
+// === POST: Request Faucet ===
 export async function POST(request: NextRequest) {
   try {
-    const { address } = await request.json()
+    const { address } = await request.json();
 
-    // Validate address
+    // Validate Sui Address
     if (!address || !isValidSuiAddress(address)) {
-      return NextResponse.json({ error: "Invalid Sui address format" }, { status: 400 })
+      return NextResponse.json({ error: "Invalid Sui address format" }, { status: 400 });
     }
 
-    // Get client IP
-    const headersList = await headers()
-    const forwarded = headersList.get("x-forwarded-for")
-    const ip = forwarded ? forwarded.split(",")[0] : "127.0.0.1"
+    // Detect IP
+    const headersList = await Promise.resolve(headers());
+    const forwarded = headersList.get("x-forwarded-for");
+    const ip = forwarded ? forwarded.split(",")[0].trim() : "127.0.0.1";
 
-    // Check rate limit
-    const rateLimitKey = getRateLimitKey(ip, address)
-    const rateLimit = checkRateLimit(rateLimitKey)
+    // Check ban
+    if (bannedIPs.has(ip) || bannedWallets.has(address)) {
+      return NextResponse.json({ error: "You are banned from using the faucet." }, { status: 403 });
+    }
 
+    // Rate limit
+    const rateKey = getRateLimitKey(ip, address);
+    const rateLimit = checkRateLimit(rateKey);
     if (!rateLimit.allowed) {
-      const resetTime = rateLimit.resetTime!
-      const waitTime = Math.ceil((resetTime - Date.now()) / 1000 / 60) // minutes
-
-      return NextResponse.json(
-        {
-          error: `Rate limit exceeded. Try again in ${waitTime} minutes.`,
-          resetTime,
-        },
-        { status: 429 },
-      )
+      const waitMins = Math.ceil(((rateLimit.resetTime ?? 0) - Date.now()) / 60000);
+      return NextResponse.json({ error: `Rate limit exceeded. Try again in ${waitMins} min.` }, { status: 429 });
     }
 
-    // Simulate token transfer (replace with actual Sui SDK calls)
-    await new Promise((resolve) => setTimeout(resolve, 2000)) // Simulate network delay
+    // === Build & Execute Transaction ===
+    const tx = new Transaction();
+    const sender = keypair.getPublicKey().toSuiAddress();
 
-    // Generate mock transaction hash
-    const txHash = `0x${Math.random().toString(16).substr(2, 64)}`
+    // Split 1 SUI from gas coin
+    const [coin] = tx.splitCoins(tx.gas, [tx.pure.u64(FAUCET_AMOUNT)]);
 
-    // Log the request
-    console.log(`Faucet request: ${address} from ${ip} - TX: ${txHash}`)
+    // Transfer the split coin to requested address
+    tx.transferObjects([coin], tx.pure.address(address));
 
-    return NextResponse.json({
-      success: true,
-      txHash,
-      amount: FAUCET_AMOUNT / 1000000000, // Convert back to SUI
-      address,
+    // Set sender
+    tx.setSender(sender);
+
+    const result = await client.signAndExecuteTransaction({
+      transaction: await tx.build({ client }),
+      signer: keypair,
+      options: { showEffects: true },
+    });
+
+    const txHash = result.digest;
+
+    // Log success
+    const logEntry = {
+      id: Date.now().toString(),
+      wallet: address,
+      ip,
       timestamp: new Date().toISOString(),
-    })
-  } catch (error) {
-    console.error("Faucet error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+      status: "success",
+      amount: FAUCET_AMOUNT / 1_000_000_000,
+      txHash,
+    };
+    saveLog(logEntry);
+
+    return NextResponse.json({ success: true, ...logEntry });
+  } catch (error: any) {
+    console.error("Faucet error:", error);
+
+    // Log failure
+    const headersList = await Promise.resolve(headers());
+    const forwarded = headersList.get("x-forwarded-for");
+    const ip = forwarded ? forwarded.split(",")[0].trim() : "127.0.0.1";
+
+    const logEntry = {
+      id: Date.now().toString(),
+      wallet: "unknown",
+      ip,
+      timestamp: new Date().toISOString(),
+      status: "failed",
+      error: error.message ?? "Internal server error",
+    };
+    saveLog(logEntry);
+
+    return NextResponse.json({ error: error.message ?? "Internal server error" }, { status: 500 });
   }
 }
 
+// === GET: Status ===
 export async function GET() {
   return NextResponse.json({
     status: "online",
@@ -99,6 +171,28 @@ export async function GET() {
       maxRequests: MAX_REQUESTS_PER_HOUR,
       windowMs: RATE_LIMIT_WINDOW,
     },
-    faucetAmount: FAUCET_AMOUNT / 1000000000,
-  })
+    faucetAmount: FAUCET_AMOUNT / 1_000_000_000,
+    totalLogs: loadLogs().length,
+  });
+}
+
+// === DELETE: Admin Reset ===
+export async function DELETE(request: NextRequest) {
+  try {
+    const { secret } = await request.json();
+    if (secret !== process.env.ADMIN_SECRET) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
+
+    // Clear logs and bans
+    fs.writeFileSync(LOG_FILE, JSON.stringify([]));
+    requestLog.clear();
+    bannedIPs.clear();
+    bannedWallets.clear();
+
+    return NextResponse.json({ success: true, message: "Faucet data cleared." });
+  } catch (error: any) {
+    console.error("Error clearing faucet data:", error);
+    return NextResponse.json({ error: error.message ?? "Internal server error" }, { status: 500 });
+  }
 }

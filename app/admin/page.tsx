@@ -1,324 +1,208 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { Navigation } from "@/components/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Activity, Users, Droplets, AlertTriangle, TrendingUp, Clock, Shield, Settings } from "lucide-react"
-<<<<<<< HEAD
-import { useEffect } from "react"
-=======
->>>>>>> de55a8e1e48d97a85ed585ed88d2d132600c6d94
+import { useState, useEffect } from "react";
+import useSWR from "swr";
+import { motion } from "framer-motion";
+import { Navigation } from "@/components/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip } from "recharts";
 
-interface AdminStats {
-  totalRequests: number
-  successfulRequests: number
-  failedRequests: number
-  totalTokensSent: number
-  activeUsers: number
-  averageResponseTime: number
-}
-
-interface RecentRequest {
-  id: string
-  address: string
-  ip: string
-  timestamp: string
-  status: "success" | "failed" | "rate_limited"
-  amount?: number
-  txHash?: string
-}
+const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 export default function AdminPage() {
-  const [stats, setStats] = useState<AdminStats>({
-    totalRequests: 1247,
-    successfulRequests: 1156,
-    failedRequests: 91,
-    totalTokensSent: 1156,
-    activeUsers: 89,
-    averageResponseTime: 2.3,
-  })
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [password, setPassword] = useState("");
 
-  const [recentRequests] = useState<RecentRequest[]>([
-    {
-      id: "1",
-      address: "0x1234...abcd",
-      ip: "192.168.1.1",
-      timestamp: "2024-01-01T12:00:00Z",
-      status: "success",
-      amount: 1,
-      txHash: "0xabcd...1234",
-    },
-    {
-      id: "2",
-      address: "0x5678...efgh",
-      ip: "192.168.1.2",
-      timestamp: "2024-01-01T11:55:00Z",
-      status: "rate_limited",
-    },
-    {
-      id: "3",
-      address: "0x9012...ijkl",
-      ip: "192.168.1.3",
-      timestamp: "2024-01-01T11:50:00Z",
-      status: "success",
-      amount: 1,
-      txHash: "0xefgh...5678",
-    },
-  ])
+  useEffect(() => {
+    const saved = localStorage.getItem("admin_logged");
+    if (saved === "true") setLoggedIn(true);
+  }, []);
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "success":
-        return <Badge className="bg-green-900 text-green-300 text-xs">Success</Badge>
-      case "failed":
-        return (
-          <Badge variant="destructive" className="text-xs">
-            Failed
-          </Badge>
-        )
-      case "rate_limited":
-        return <Badge className="bg-yellow-900 text-yellow-300 text-xs">Rate Limited</Badge>
-      default:
-        return (
-          <Badge variant="secondary" className="text-xs">
-            Unknown
-          </Badge>
-        )
+  const handleLogin = () => {
+    if (password === process.env.NEXT_PUBLIC_ADMIN_SECRET) {
+      setLoggedIn(true);
+      localStorage.setItem("admin_logged", "true");
+    } else {
+      alert("❌ Wrong password");
     }
-  }
+  };
+
+  const { data, mutate } = useSWR(loggedIn ? "/api/admin/stats" : null, fetcher, {
+    refreshInterval: 5000,
+  });
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#111827] to-black text-white overflow-hidden">
       <Navigation />
 
-      <main className="pt-20 sm:pt-24 lg:pt-32 pb-8 sm:pb-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+      {/* =============== Login Screen =============== */}
+      {!loggedIn ? (
+        <div className="flex flex-col items-center justify-center min-h-screen pt-32 px-4">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="mb-6 sm:mb-8"
+            className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-8 w-full max-w-sm shadow-[0_0_30px_rgba(0,0,0,0.3)]"
           >
-            <h1 className="text-3xl sm:text-4xl font-bold mb-3 sm:mb-4">Admin Dashboard</h1>
-            <p className="text-gray-400 text-base sm:text-lg">Monitor faucet performance and manage system settings</p>
+            <CardHeader>
+              <CardTitle className="text-2xl text-center text-transparent bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text">
+                🔑 Admin Login
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Input
+                type="password"
+                placeholder="Enter admin password"
+                className="bg-gray-900/50 border-gray-700 text-white focus:ring-2 focus:ring-purple-500"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <Button
+                onClick={handleLogin}
+                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-105 transition-transform shadow-lg shadow-purple-500/30"
+              >
+                Login
+              </Button>
+            </CardContent>
+          </motion.div>
+        </div>
+      ) : !data ? (
+        // =============== Loading State ===============
+        <div className="text-center mt-40 text-gray-400 animate-pulse text-lg">
+          Loading dashboard...
+        </div>
+      ) : (
+        // =============== Dashboard ===============
+        <main className="pt-28 px-6 max-w-7xl mx-auto space-y-10">
+          {/* ========== Stats Cards ========== */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {[
+              { title: "Total Requests", value: data.totalRequests, color: "from-blue-500 to-cyan-400" },
+              { title: "Successful", value: data.successfulRequests, color: "from-green-500 to-emerald-400" },
+              { title: "Failed", value: data.failedRequests, color: "from-red-500 to-pink-400" },
+            ].map((stat, i) => (
+              <motion.div
+                key={i}
+                whileHover={{ scale: 1.06 }}
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                className={`p-6 rounded-xl shadow-lg bg-gradient-to-br ${stat.color} relative overflow-hidden`}
+              >
+                <div className="absolute inset-0 bg-white/10 opacity-10 blur-2xl" />
+                <p className="text-sm opacity-80">{stat.title}</p>
+                <p className="text-3xl font-bold mt-1">{stat.value}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* ========== Requests Graph ========== */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gray-900/50 border border-gray-700 rounded-2xl p-6 shadow-lg backdrop-blur-md"
+          >
+            <CardTitle className="mb-4 text-lg font-semibold text-blue-400 flex items-center gap-2">
+              📈 Requests Over Time
+            </CardTitle>
+            <ResponsiveContainer width="100%" height={240}>
+              <LineChart data={data.graphData}>
+                <XAxis dataKey="time" stroke="#888" />
+                <YAxis stroke="#888" />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#1f2937",
+                    borderRadius: "8px",
+                    border: "1px solid #374151",
+                    color: "#fff",
+                  }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="requests"
+                  stroke="#60a5fa"
+                  strokeWidth={3}
+                  dot={{ fill: "#60a5fa" }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </motion.div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.1 }}
-            >
-              <Card className="bg-gray-900/50 border-gray-700">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs sm:text-sm font-medium">Total Requests</CardTitle>
-                  <Activity className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-xl sm:text-2xl font-bold">{stats.totalRequests.toLocaleString()}</div>
-                  <p className="text-xs text-green-400">+12% from last hour</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-            >
-              <Card className="bg-gray-900/50 border-gray-700">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs sm:text-sm font-medium">Success Rate</CardTitle>
-                  <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-xl sm:text-2xl font-bold">
-                    {((stats.successfulRequests / stats.totalRequests) * 100).toFixed(1)}%
-                  </div>
-                  <p className="text-xs text-green-400">+2.1% from yesterday</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-            >
-              <Card className="bg-gray-900/50 border-gray-700">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs sm:text-sm font-medium">Tokens Distributed</CardTitle>
-                  <Droplets className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-xl sm:text-2xl font-bold">{stats.totalTokensSent.toLocaleString()} SUI</div>
-                  <p className="text-xs text-blue-400">Last 24 hours</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-            >
-              <Card className="bg-gray-900/50 border-gray-700">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs sm:text-sm font-medium">Active Users</CardTitle>
-                  <Users className="h-3 w-3 sm:h-4 sm:w-4 text-purple-500" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-xl sm:text-2xl font-bold">{stats.activeUsers}</div>
-                  <p className="text-xs text-purple-400">Last hour</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.5 }}
-            >
-              <Card className="bg-gray-900/50 border-gray-700">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs sm:text-sm font-medium">Avg Response Time</CardTitle>
-                  <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-500" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-xl sm:text-2xl font-bold">{stats.averageResponseTime}s</div>
-                  <p className="text-xs text-yellow-400">-0.3s from yesterday</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-            >
-              <Card className="bg-gray-900/50 border-gray-700">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs sm:text-sm font-medium">Failed Requests</CardTitle>
-                  <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 text-red-500" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-xl sm:text-2xl font-bold">{stats.failedRequests}</div>
-                  <p className="text-xs text-red-400">
-                    {((stats.failedRequests / stats.totalRequests) * 100).toFixed(1)}% failure rate
-                  </p>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
-            {/* Recent Requests */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.7 }}
-            >
-              <Card className="bg-gray-900/50 border-gray-700">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 text-base sm:text-lg">
-                    <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
-                    <span>Recent Requests</span>
-                  </CardTitle>
-                  <CardDescription className="text-sm">Latest faucet requests and their status</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3 sm:space-y-4">
-                    {recentRequests.map((request) => (
-                      <div
-                        key={request.id}
-                        className="flex items-center justify-between p-2 sm:p-3 bg-gray-800/50 rounded-lg"
-                      >
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-2 mb-1">
-                            <code className="text-xs sm:text-sm text-blue-400 truncate">{request.address}</code>
-                            {getStatusBadge(request.status)}
-                          </div>
-                          <div className="text-xs text-gray-400">
-                            {request.ip} • {new Date(request.timestamp).toLocaleTimeString()}
-                          </div>
-                          {request.txHash && <div className="text-xs text-green-400 mt-1">TX: {request.txHash}</div>}
-                        </div>
-                        {request.amount && (
-                          <div className="text-xs sm:text-sm font-semibold text-blue-400">{request.amount} SUI</div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* System Controls */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.8 }}
-            >
-              <Card className="bg-gray-900/50 border-gray-700">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 text-base sm:text-lg">
-                    <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
-                    <span>System Controls</span>
-                  </CardTitle>
-                  <CardDescription className="text-sm">Manage faucet settings and configuration</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4 sm:space-y-6">
-                  <div>
-                    <label className="block text-xs sm:text-sm font-medium mb-2">Faucet Amount (SUI)</label>
-                    <Input type="number" defaultValue="1.0" className="bg-gray-800 border-gray-600 text-sm" />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs sm:text-sm font-medium mb-2">Rate Limit (requests/hour)</label>
-                    <Input type="number" defaultValue="1" className="bg-gray-800 border-gray-600 text-sm" />
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
-                    <Button className="flex-1 bg-blue-600 hover:bg-blue-700 text-sm">Update Settings</Button>
-                    <Button variant="outline" className="border-gray-600 bg-transparent text-sm">
-                      <Shield className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-                      Security
-                    </Button>
-                  </div>
-
-                  <div className="pt-3 sm:pt-4 border-t border-gray-700">
-                    <div className="flex items-center justify-between mb-2 sm:mb-3">
-                      <span className="text-xs sm:text-sm font-medium">Faucet Status</span>
-                      <Badge className="bg-green-900 text-green-300 text-xs">Online</Badge>
-                    </div>
-                    <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="border-yellow-600 text-yellow-400 bg-transparent text-xs"
-                      >
-                        Maintenance Mode
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="border-red-600 text-red-400 bg-transparent text-xs"
-                      >
-                        Emergency Stop
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
-        </div>
-      </main>
+          {/* ========== Recent Requests Table ========== */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gray-900/50 border border-gray-700 rounded-2xl shadow-lg overflow-hidden"
+          >
+            <CardHeader className="sticky top-0 bg-gray-800/70 backdrop-blur-lg border-b border-gray-700">
+              <CardTitle className="text-purple-400">Recent Requests</CardTitle>
+            </CardHeader>
+            <CardContent className="overflow-x-auto max-h-[400px] scrollbar-thin scrollbar-thumb-gray-600">
+              <table className="min-w-full text-xs sm:text-sm">
+                <thead className="bg-gray-800 text-gray-300 sticky top-0">
+                  <tr>
+                    <th className="p-2 text-left">Wallet</th>
+                    <th className="p-2">IP</th>
+                    <th className="p-2">Status</th>
+                    <th className="p-2">Tx Hash</th>
+                    <th className="p-2">Time</th>
+                    <th className="p-2">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.recentRequests.map((req: any, i: number) => (
+                    <motion.tr
+                      key={req.id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: i * 0.05 }}
+                      whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
+                      className="border-t border-gray-800 transition"
+                    >
+                      <td className="p-2">{req.wallet}</td>
+                      <td className="p-2">{req.ip}</td>
+                      <td className="p-2">
+                        <Badge
+                          className={
+                            req.status === "success"
+                              ? "bg-green-900 text-green-300"
+                              : "bg-red-900 text-red-300"
+                          }
+                        >
+                          {req.status}
+                        </Badge>
+                      </td>
+                      <td className="p-2 text-blue-400 truncate max-w-[120px]">
+                        {req.txHash || "-"}
+                      </td>
+                      <td className="p-2">{new Date(req.timestamp).toLocaleTimeString()}</td>
+                      <td className="p-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-red-600 text-red-400 hover:bg-red-600/20 hover:scale-105 transition-transform"
+                          onClick={async () => {
+                            await fetch("/api/admin/block", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ wallet: req.wallet, ip: req.ip }),
+                            });
+                            mutate();
+                          }}
+                        >
+                          Block
+                        </Button>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+            </CardContent>
+          </motion.div>
+        </main>
+      )}
     </div>
-  )
+  );
 }
